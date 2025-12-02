@@ -5,8 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,29 +17,32 @@ import java.util.HashMap;
 import java.util.UUID;
 
 @SpringBootApplication
-@RestController
-@RequestMapping("/api/payments")
 public class PaymentServiceApplication {
-
-    private static final Logger logger = LoggerFactory.getLogger(PaymentServiceApplication.class);
-
-    @Value("${notification.service.url:http://notification-service:8080}")
-    private String notificationServiceUrl;
-
-    private final RestTemplate restTemplate;
-
-    public PaymentServiceApplication(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     public static void main(String[] args) {
         SpringApplication.run(PaymentServiceApplication.class, args);
     }
+}
 
+@Configuration
+class AppConfig {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+}
+
+@RestController
+@RequestMapping("/api/payments")
+class PaymentController {
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
+
+    @Value("${notification.service.url:http://notification-service:8080}")
+    private String notificationServiceUrl;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @PostMapping("/process")
     public ResponseEntity<Map<String, Object>> processPayment(@RequestBody Map<String, Object> paymentRequest) {
